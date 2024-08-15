@@ -51,7 +51,7 @@ const UserInfo = db.define("user_info", {
 
 const Token = db.define("refresh_token", {
     token: {
-        type: DataTypes.STRING(350),
+        type: DataTypes.STRING(450),
         allowNull: false,
     },
 }, { timestamps: false });
@@ -78,8 +78,8 @@ const Product = db.define("product", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    imgs: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+    img: {
+        type: DataTypes.STRING,
         allowNull: false
     },
     rating: {

@@ -5,8 +5,8 @@ const { Brand } = models;
 
 class BrandService {
     async addBrand(name) {
-        const type = await Brand.findOne({ where: { name } });
-        if (type) {
+        const brand = await Brand.findOne({ where: { name } });
+        if (brand) {
             throw ApiError.BadRequest(`Brand ${name} already exists`);
         }
         const brandData = await Brand.create({ name });
@@ -18,13 +18,13 @@ class BrandService {
         return brands;
     }
 
-    async getOneBrand(brand_id) {
-        const brandData = await Type.findOne({ where: { id: brand_id } });
+    async getOneBrand(brandId) {
+        const brandData = await Brand.findOne({ where: { id: brandId } });
         return brandData;
     }
 
-    async removeOneBrand(brand_id) {
-        const brandData = Type.destroy({ where: { id: brand_id } });
+    async removeOneBrand(brandId) {
+        const brandData = Brand.destroy({ where: { id: brandId } });
         return brandData;
     }
 }

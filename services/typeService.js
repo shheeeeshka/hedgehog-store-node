@@ -18,13 +18,13 @@ class TypeService {
         return types;
     }
 
-    async getOneType(type_id) {
-        const typeData = await Type.findOne({ where: { id: type_id } });
+    async getOneType(typeId) {
+        const typeData = await Type.findOne({ where: { id: typeId } });
         return typeData;
     }
 
-    async removeOneType(type_id) {
-        const typeData = Type.destroy({ where: { id: type_id } });
+    async removeOneType(typeId) {
+        const typeData = Type.destroy({ where: { id: typeId } });
         return typeData;
     }
 }

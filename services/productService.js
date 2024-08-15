@@ -5,7 +5,7 @@ import fileService from "./fileService.js";
 const { Product, ProductInfo, Type, Brand } = models;
 
 class ProductService {
-    async addProduct(name, price, typeId, brandId, imgs, info) {
+    async addProduct(name, price, typeId, brandId, img, info, sex) {
         const product = await Product.findOne({ where: { name } });
         if (product) {
             throw ApiError.BadRequest(`Product ${name} already exists`);
@@ -21,19 +21,15 @@ class ProductService {
             throw ApiError.BadRequest(`Brand ${brand.name} doesn't exist`);
         }
 
-        let fileNames = [];
-
-        for (let img of imgs) {
-            let fileName = fileService.saveImg(img);
-            fileNames.push(fileName);
-        }
+        let fileName = fileService.saveImg(img);
 
         const productData = await Product.create({
             name,
             price,
-            img: fileNames,
+            img: fileName,
             typeId,
-            brandId
+            brandId,
+            sex,
         });
 
         // if (info) {
@@ -66,7 +62,6 @@ class ProductService {
                 offset
             });
         }
-
         return products;
     }
 

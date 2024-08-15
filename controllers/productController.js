@@ -3,9 +3,9 @@ import productService from "../services/productService.js";
 class ProductController {
     async addProduct(req, res, next) {
         try {
-            const { name, price, typeId, brandId, info } = req.body;
-            const { imgs } = req.files;
-            const product = await productService.addProduct(name, price, typeId, brandId, imgs, info);
+            const { name, price, typeId, brandId, info, sex } = req.body;
+            const { img } = req.files;
+            const product = await productService.addProduct(name, price, typeId, brandId, img, info, sex);
             return res.json(product);
         } catch (e) {
             next(e);
@@ -16,6 +16,7 @@ class ProductController {
         try {
             let { typeId, limit, page } = req.query;
             const products = await productService.getAllProducts(typeId, limit, page);
+            console.log(products);
             return res.json(products);
         } catch (e) {
             next(e);
