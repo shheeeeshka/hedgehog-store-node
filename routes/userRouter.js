@@ -5,7 +5,7 @@ import checkRole from "../middleware/checkRoleMiddleware.js";
 
 const router = new Router();
 
-router.get('/all', checkRole("admin"), userController.getAllUsers);
-router.get('/:email', checkRole("admin"), userController.getUserByEmail);
+router.get("/all", checkRole("admin"), userController.getAllUsers);
+router.get("/:email", checkRole("admin"), userController.getUserByEmail);
 
 export default router;

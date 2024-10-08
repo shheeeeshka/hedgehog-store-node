@@ -1,31 +1,30 @@
 import ApiError from "../exceptions/ApiError.js";
-import models from "../models/models.js";
-
-const { Brand } = models;
+import Brand from "../models/brand-model.js";
 
 class BrandService {
     async addBrand(name) {
-        const brand = await Brand.findOne({ where: { name } });
+        const brand = await Brand.findOne({ name });
         if (brand) {
             throw ApiError.BadRequest(`Brand ${name} already exists`);
         }
-        const brandData = await Brand.create({ name });
+        const brandData = new Brand({ name });
+        await brandData.save();
         return brandData;
     }
 
     async getAllBrands() {
-        const brands = await Brand.findAll();
+        const brands = await Brand.find();
         return brands;
     }
 
     async getOneBrand(brandId) {
-        const brandData = await Brand.findOne({ where: { id: brandId } });
+        const brandData = await Brand.findOne({ _id: brandId });
         return brandData;
     }
 
     async removeOneBrand(brandId) {
-        const brandData = Brand.destroy({ where: { id: brandId } });
-        return brandData;
+        const brandDataDeleteStatus = Brand.findOneAndDelete({ _id: brandId });
+        return brandDataDeleteStatus;
     }
 }
 

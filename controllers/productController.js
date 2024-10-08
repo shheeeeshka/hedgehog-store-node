@@ -3,9 +3,9 @@ import productService from "../services/productService.js";
 class ProductController {
     async addProduct(req, res, next) {
         try {
-            const { name, price, typeId, brandId, info, sex } = req.body;
-            const { img } = req.files;
-            const product = await productService.addProduct(name, price, typeId, brandId, img, info, sex);
+            const { name, price, typeId, brandId, description, target_gender, sale, detailed_description, possible_sizes, available_sizes, possible_colors, available_colors, target_audience } = req.body;
+            const { img, imgs } = req.files; // imgs ??
+            const product = await productService.addProduct(name, price, typeId, brandId, description, target_gender, sale, detailed_description, possible_sizes, available_sizes, possible_colors, available_colors, target_audience, img, imgs);
             return res.json(product);
         } catch (e) {
             next(e);
@@ -16,7 +16,6 @@ class ProductController {
         try {
             let { typeId, limit, page } = req.query;
             const products = await productService.getAllProducts(typeId, limit, page);
-            console.log(products);
             return res.json(products);
         } catch (e) {
             next(e);
@@ -25,7 +24,7 @@ class ProductController {
 
     async getOneProduct(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const product = await productService.getOneProduct(id);
             return res.json(product);
         } catch (e) {
@@ -35,7 +34,7 @@ class ProductController {
 
     async removeOneProduct(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const product = await productService.removeOneProduct(id);
             return res.json(product);
         } catch (e) {

@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 class MailService {
     constructor() {
@@ -21,7 +21,7 @@ class MailService {
             text: "",
             html: `
             <h1>To activate your profile press button below</h1>
-            <button><a href='${link}'>Confirm Email</a></button><br>
+            <button><a href="${link}">Confirm Email</a></button><br>
             `
         });
     }
@@ -34,7 +34,7 @@ class MailService {
             text: "",
             html: `
             <h1>To reset your password press button below</h1>
-            <button><a href='${link}'>Reset Password</a></button><br>
+            <button><a href="${link}">Reset Password</a></button><br>
             `
         });
     }

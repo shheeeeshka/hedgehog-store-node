@@ -1,30 +1,31 @@
-import models from "../models/models.js";
+import { Basket, BasketItem } from "../models/basket-model.js";
+import { Product } from "../models/product-model.js";
 
-const { Product, Basket, BasketItem } = models;
 
 class BasketService {
-    async addItemToBasket(userId, productId) {
-        const basket = await Basket.findOne({ where: { userId } });
-        const basketItem = await BasketItem.create({ basketId: basket.id, productId });
+    async addItemToBasket(userId, productId) { // !!
+        const basket = await Basket.findOne({ userId });
+        const basketItem = new BasketItem({ basketId: basket._id, productId }); // !!!!!??????
+        await basketItem.save();
         return basketItem;
     }
 
-    async getBasketItems(userId) {
-        const basket = await Basket.findOne({ where: { userId } });
-        const basketInfo = await BasketItem.findAll({ where: { basketId: basket.id } });
-        const productIds = basketInfo.map(item => item.productId);
+    async getBasketItems(userId) { // !!
+        const basket = await Basket.findOne({ userId });
+        const basketInfo = await BasketItem.find({ basketId: basket._id });
+        const productIds = basketInfo.map(item => item.productId); // !!!!??????
 
-        const basketItems = await Promise.all(productIds.map(productId => Product.findOne({ where: { id: productId } })));
+        const basketItems = await Promise.all(productIds.map(productId => Product.findOne({ _id: productId }))); // !!!!!!??????
 
         return {
             basketItems,
-            basketInfo
+            basketInfo,
         };
     }
 
     async removeItemFromBasket(userId, productId) {
-        const basketItem = await BasketItem.destroy({ where: { userId, productId } });
-        return basketItem;
+        const basketItemDeleteStatus = await BasketItem.findOneAndDelete({ userId, productId });
+        return basketItemDeleteStatus;
     }
 }
 

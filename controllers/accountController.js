@@ -3,8 +3,8 @@ import accountService from "../services/accountService.js";
 class AccountController {
     async activateAccount(req, res, next) {
         try {
-            const activationLink = req.params.link;
-            await accountService.activateAccount(activationLink);
+            const { link } = req.params;
+            await accountService.activateAccount(link);
             return res.redirect(process.env.CLIENT_URL);
         } catch (e) {
             next(e);
@@ -13,7 +13,7 @@ class AccountController {
 
     async deleteAccount(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const { token } = req.cookies;
             const user = await accountService.deleteAccount(id, token);
             return res.json(user);

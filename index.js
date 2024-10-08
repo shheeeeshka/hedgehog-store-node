@@ -7,7 +7,6 @@ import path from "path";
 import { fileURLToPath } from "url"
 import { config } from "dotenv";
 
-import db from "./db.js";
 import router from "./routes/index.js";
 import ErrorHandlingMiddleware from "./middleware/ErrorHandlingMiddleware.js";
 
@@ -32,8 +31,11 @@ app.use(ErrorHandlingMiddleware);
 
 const launch = async () => {
     try {
-        await db.authenticate();
-        await db.sync();
+        mongoose.connect(process.env.ATLAS_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then(() => console.log(`Mongodb connection established\n`))
+            .catch(err => console.log(`An error occured while connecting to mongodb ${err.message}\n`));
         app.listen(PORT, () => console.log(`Server is currently running on port: ${PORT}`));
     } catch (e) {
         console.error(e)

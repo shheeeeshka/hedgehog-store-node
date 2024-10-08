@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
+import Token from "../models/token-model.js";
+import ApiError from "../exceptions/ApiError.js";
 
-import models from "../models/models.js";
-
-const { Token } = models;
 
 class TokenService {
     generateTokens(payload) {
@@ -16,18 +15,20 @@ class TokenService {
 
         return {
             accessToken,
-            refreshToken
+            refreshToken,
         }
     }
 
     async saveToken(userId, refrToken) {
-        const tokenData = await Token.findOne({ where: { userId } });
+        if (!userId || !refrToken) throw ApiError.BadRequest("Necessary fields not specified");
+        const tokenData = await Token.findOne({ userId });
         if (tokenData) {
             tokenData.token = refrToken;
             return tokenData.save();
         }
 
-        const tokenn = await Token.create({ token: refrToken, userId });
+        const tokenn = new Token({ token: refrToken, userId });
+        await tokenn.save();
         return tokenn;
     }
 
@@ -50,12 +51,12 @@ class TokenService {
     }
 
     async removeToken(token) {
-        const tokenData = await Token.destroy({ where: { token } });
+        const tokenData = await Token.findOneAndDelete({ token });
         return tokenData;
     }
 
     async findToken(token) {
-        const tokenData = await Token.findOne({ where: { token } });
+        const tokenData = await Token.findOne({ token });
         return tokenData;
     }
 }

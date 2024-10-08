@@ -22,7 +22,7 @@ class TypeController {
 
     async getOneType(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const typeData = await typeService.getOneType(id);
             return res.json(typeData);
         } catch (e) {
@@ -32,7 +32,7 @@ class TypeController {
 
     async removeOneType(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const typeData = await typeService.removeOneType(id);
             return res.json(typeData);
         } catch (e) {

@@ -1,37 +1,35 @@
 import ApiError from "../exceptions/ApiError.js";
-import models from "../models/models.js";
+import { Basket } from "../models/basket-model.js";
+import User from "../models/user-model.js";
 import tokenService from "./tokenService.js";
 
-const { User, UserInfo, Basket } = models;
-
 class AccountService {
-    async activateAccount(activationLink) {
-        const user = User.findOne({ where: { activationLink } });
+    async activateAccount(activation_link) {
+        const user = await User.findOne({ activation_link });
 
         if (!user) {
             throw ApiError.BadRequest(`Incorrect activation link`);
         }
 
-        user.isActivated = true;
-        await user.save();
+        user.activated = true;
+        return user.save();
     }
 
-    async deleteAccount(id, token) {
+    async deleteAccount(_id, token) {
         if (!token) {
             throw ApiError.Unauthorized();
         }
 
         const decodedToken = tokenService.validateRefreshToken(token);
 
-        if (id != decodedToken.id) {
-            throw ApiError.Forbidden(`We're sorry, but you don't have permission to delete account ${id}`);
+        if (_id != decodedToken._id) {
+            throw ApiError.Forbidden(`We're sorry, but you don't have permission to delete account ${_id}`);
         }
 
         await tokenService.removeToken(token);
-        await Basket.destroy({ where: { userId: id } }); // also destroy basket items for specified id
-        await UserInfo.destroy({ where: { userId: id } });
-        const user = await User.destroy({ where: { id } });
-        return user;
+        const basketDeleteStatus = await Basket.findOneAndDelete({ userId: _id }); // also destroy basket items for specified user _id
+        const userDeleteStatus = await User.findOneAndDelete({ _id });
+        return basketDeleteStatus && userDeleteStatus;
     }
 
     async changePassword(email, token, pass, newPass) {
@@ -39,24 +37,28 @@ class AccountService {
             throw ApiError.Unauthorized();
         }
 
-        const decodedToken = tokenService.validateRefreshToken(token);
-        if (decodedToken.email !== email) {
-            throw ApiError.Forbidden(`We're sorry, but you don't have permission to change password for ${email}`);
-        }
-
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            throw ApiError.BadRequest();
-        }
-
-        const isPassCorrect = await bcrypt.compare(pass, user.password);
-        if (!isPassCorrect) {
-            throw ApiError.BadRequest(`Incorrect password`);
+        if (!pass || !newPass) {
+            throw ApiError.BadRequest("Password must be specified");
         }
 
         const isPassEq = pass === newPass;
         if (isPassEq) {
             throw ApiError.BadRequest(`Your new password bust be different from the old one`);
+        }
+
+        const decodedToken = tokenService.validateRefreshToken(token);
+        if (decodedToken.email !== email) { // admin must be able to delete user ??
+            throw ApiError.Forbidden(`We're sorry, but you don't have permission to change password for ${email}`);
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw ApiError.BadRequest("User not found!");
+        }
+
+        const isPassCorrect = await bcrypt.compare(pass, user.password);
+        if (!isPassCorrect) {
+            throw ApiError.BadRequest(`Incorrect password`);
         }
 
         const newHashPass = await bcrypt.hash(newPass, 5);

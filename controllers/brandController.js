@@ -22,7 +22,7 @@ class BrandController {
 
     async getOneBrand(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const brandData = await brandService.getOneBrand(id);
             return res.json(brandData);
         } catch (e) {
@@ -32,7 +32,7 @@ class BrandController {
 
     async removeOneBrand(req, res, next) {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const brandData = await brandService.removeOneBrand(id);
             return res.json(brandData);
         } catch (e) {

@@ -1,49 +1,67 @@
 import ApiError from "../exceptions/ApiError.js";
-import models from "../models/models.js";
+import Brand from "../models/brand-model.js";
+import { Product, ProductInfo } from "../models/product-model.js";
+import Type from "../models/type-model.js";
 import fileService from "./fileService.js";
 
-const { Product, ProductInfo, Type, Brand } = models;
-
 class ProductService {
-    async addProduct(name, price, typeId, brandId, img, info, sex) {
-        const product = await Product.findOne({ where: { name } });
-        if (product) {
+    async addProduct(name, price, typeId, brandId, description, target_gender, sale, detailed_description, possible_sizes, available_sizes, possible_colors, available_colors, target_audience, img, imgs) {
+        const p = await Product.findOne({ name });
+        if (p) {
             throw ApiError.BadRequest(`Product ${name} already exists`);
         }
 
-        const type = await Type.findOne({ where: { id: typeId } });
+        const type = await Type.findOne({ _id: typeId });
         if (!type) {
-            throw ApiError.BadRequest(`Type ${type.name} doesn't exist`);
+            throw ApiError.BadRequest(`Type ${typeId} doesn't exist`);
         }
 
-        const brand = await Brand.findOne({ where: { id: brandId } });
+        const brand = await Brand.findOne({ _id: brandId });
         if (!brand) {
-            throw ApiError.BadRequest(`Brand ${brand.name} doesn't exist`);
+            throw ApiError.BadRequest(`Brand ${brandId} doesn't exist`);
         }
 
         let fileName = fileService.saveImg(img);
 
-        const productData = await Product.create({
+        const product = new Product({
             name,
             price,
             img: fileName,
             typeId,
+            description,
             brandId,
-            sex,
+            target_gender,
+            sale,
         });
+        await product.save();
+
+        const productInfo = new ProductInfo({
+            detailed_description,
+            imgs: [], // !!!!!!!
+            possible_sizes,
+            available_sizes,
+            possible_colors,
+            available_colors,
+            target_audience,
+            productId: product?._id,
+        });
+        await productInfo.save();
+
+        // quantity !!
 
         // if (info) {
         //     desc = JSON.parse(info);
         //     desc.forEach(el => {
-        //         ProductInfo.create({
+        //         const t = new ProductInfo({
         //             title: el.title,
         //             description: el.description,
         //             productId: productData.id,
         //         });
+        //      await t.save();
         //     })
         // }
 
-        return productData;
+        return { ...product, ...productInfo };
     }
 
     async getAllProducts(typeId, limit, page) {
@@ -54,9 +72,9 @@ class ProductService {
         let products;
 
         if (!typeId) {
-            products = await Product.findAndCountAll({ limit, offset });
+            products = await Product.findAndCountAll({ limit, offset }); // !!!????
         } else if (typeId) {
-            products = await Product.findAndCountAll({
+            products = await Product.findAndCountAll({ // !!!!?!?????!?!?
                 where: { typeId },
                 limit,
                 offset
@@ -66,12 +84,12 @@ class ProductService {
     }
 
     async getOneProduct(productId) {
-        const product = await Product.findOne({ where: { id: productId } });
+        const product = await Product.findOne({ _id: productId });
         return product;
     }
 
     async removeOneProduct(productId) {
-        const product = await Product.destroy({ where: { id: productId } });
+        const product = await Product.findOneAndDelete({ _id: productId });
         return product;
     }
 }
